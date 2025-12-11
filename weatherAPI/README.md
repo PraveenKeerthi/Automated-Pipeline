@@ -93,21 +93,6 @@ The `fetch_weather_data()` function in `api-request.py` fetches current weather 
 - Astronomical data (sunrise, sunset, moon phase)
 - Air quality metrics
 
-## Integration with Airflow
-
-This script is designed to be used as part of an Airflow DAG. You can integrate it using a `PythonOperator`:
-
-```python
-from airflow.operators.python import PythonOperator
-from api_request import fetch_weather_data
-
-fetch_weather_task = PythonOperator(
-    task_id='fetch_weather',
-    python_callable=fetch_weather_data,
-    dag=dag
-)
-```
-
 ## Troubleshooting
 
 - **API Key Error**: Ensure your `.env` file exists and contains a valid `WEATHERSTACK_API_KEY`
