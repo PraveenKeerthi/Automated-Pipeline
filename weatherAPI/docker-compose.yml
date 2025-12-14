@@ -1,3 +1,5 @@
+# Docker Compose configuration for Weather API pipeline with Airflow and PostgreSQL
+
 services:
   db:
     image: postgres:15.15
@@ -6,8 +8,47 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: db
+    
+    # Port mapping: host:container
+    # Access PostgreSQL on localhost:5000 (maps to container's port 5432)
     ports:
       - "5000:5432"
+    
+    # Volume mounts for data persistence and initialization
     volumes:
+      # Persist database data on host machine to survive container restarts
       - ./postgres/data:/var/lib/postgresql/data
+      # Auto-run initialization script on first startup (creates Airflow database/users)
+      - ./postgres/airflow_init.sql:/docker-entrypoint-initdb.d/airflow_init.sql
+    networks:
+      - weatherapi
+
+  airflow:
+    image: apache/airflow:3.1.5
+    container_name: airflow
+    environment:
+      # Database connection string: {dialect}+{driver}://{user}:{password}@{host}:{port}/{database}
+      # Connects to the 'db' service defined above
+      # NEED TO CHANGE THIS TO MATCH MY DATABASE
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@db:5432/airflow_db
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./api_request:/opt/airflow/api_request
+      - ./ingest_data:/opt/airflow/ingest_data
+    depends_on:
+      - db
+    networks:
+      - weatherapi
+    
+    # Initialize database tables and start all Airflow components (scheduler, webserver) for development
+      # migrate will use the postgres database to create the tables
+      # standalone will start the webserver and scheduler
+    command: >
+      bash -c "airflow db migrate && airflow standalone"
+
+networks:
+  weatherapi:
+    driver: bridge
     
