@@ -18,9 +18,10 @@ from api_request.api_request import mock_data
 from psycopg2 import connect
 def postgres_connection():
     try:
+        # To use docker's service and its port
         conn = connect(
-            host="localhost",
-            port="5000",
+            host="db",
+            port="5432",
             user="postgres",
             password="postgres",
             dbname="db"
@@ -89,15 +90,20 @@ def ingest_data(conn,data):
         print(f"Error while ingesting data to postgres: {e}")
 
 
-if __name__ == "__main__":
+def main():
+    conn = None
     try:
         data = mock_data()
         conn = postgres_connection()
-        create_table(conn)
-        ingest_data(conn, data)
+        if conn:
+            create_table(conn)
+            ingest_data(conn, data)
     except Exception as e:
-        print(f"Error from main ingest-data function: {e}")
+        print(f"Error from run_weather_ingestion: {e}")
     finally:
         if conn:
             conn.close()
+
+if __name__ == "__main__":
+    main()
 
