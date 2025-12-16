@@ -47,6 +47,15 @@ services:
       # standalone will start the webserver and scheduler
     command: >
       bash -c "airflow db migrate && airflow standalone"
+  dbt:
+    container_name: dbt-container
+    image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
+    volumes:
+      - ./dbt/my_project:/usr/app
+    working_dir: /usr/app
+    networks:
+      - weatherapi
+    command: run
 
 networks:
   weatherapi:
