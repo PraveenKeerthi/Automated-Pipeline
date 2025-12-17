@@ -1,0 +1,33 @@
+#In dbt (data build tool), the sources.yml file is used to define and document
+#the raw data lying in your data warehouse that hasn't been transformed by dbt yet.
+# hardcoding database references like raw_db.public.weather_data in your SQL models,
+# you define them once here and refer to them as {{ source('weather', 'weather_data') }
+version: 2
+
+sources:
+  - name: weather
+    database: db
+    schema: dev
+    description: Weather data
+    tables:
+      - name: weather
+        description: Weather data from weather app
+        columns:
+          - name: id
+            description: Primary key
+          - name: city
+            description: City name
+          - name: temperature
+            description: Temperature in Celsius
+          - name: weather_description
+            description: Weather description
+          - name: wind_speed
+            description: Wind speed in m/s
+          - name: humidity
+            description: Humidity percentage
+          - name: time
+            description: Time of data collection
+          - name: inserted_at
+            description: Time of data insertion
+          - name: utc_offset
+            description: UTC offset of the location
